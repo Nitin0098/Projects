@@ -1,6 +1,6 @@
 So this is a Diy microscope that i make with simple components and suprisingly it works preety good.
 
-For lens, i used plano-conves lens extracted from cheap 50 rupees laser pointers(i used two of them)
+For lens, i used plano-conves lens extracted from cheap 50 Rupees laser pointers(I used two of them)
 
 I made this by sticking those two lens together (flat side of one lens is sticked on flat side of
 second lens to reduce optical error) and then i taped this lens on my smartphone camera as  close as possible

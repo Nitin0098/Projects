@@ -1,0 +1,127 @@
+//Arduino Sketch for Auto-navigating Robot which senses obstacles and changes its path//
+//components Used: L298N Motor Driver, 2 BO Motor 5V, 2 BO wheels(65mm),1 Free wheel,
+Tower pro micro servo , Nodemcu ESP8266 V1, HC-SR04 Ultra sonic distance sensor//
+
+
+#include <Servo.h>
+
+// Motor Pins
+const int LeftMotorForward = D5;
+const int LeftMotorBackward = D6;
+const int RightMotorForward = D7;
+const int RightMotorBackward = D8;
+
+// Ultrasonic Sensor Pins
+const int trigPin = D1;
+const int echoPin = D2;
+
+// Servo setup
+Servo myServo;
+int distance = 0;
+
+void setup() {
+  pinMode(LeftMotorForward, OUTPUT);
+  pinMode(LeftMotorBackward, OUTPUT);
+  pinMode(RightMotorForward, OUTPUT);
+  pinMode(RightMotorBackward, OUTPUT);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  myServo.attach(D4);
+  myServo.write(90); // Face forward
+  delay(2000);
+}
+
+void loop() {
+  distance = readPing();
+
+  if (distance <= 25) {
+    moveStop();
+    delay(300);
+    moveBackward();
+    delay(400);
+    moveStop();
+    delay(300);
+    
+    int distanceRight = lookRight();
+    delay(300);
+    int distanceLeft = lookLeft();
+    delay(300);
+
+    if (distanceRight >= distanceLeft) {
+      turnRight();
+      moveStop();
+    } else {
+      turnLeft();
+      moveStop();
+    }
+  } else {
+    moveForward();
+  }
+}
+
+// Logic to scan distances
+int lookRight() {  
+  myServo.write(10);
+  delay(500);
+  int dist = readPing();
+  delay(100);
+  myServo.write(90);
+  return dist;
+}
+
+int lookLeft() {
+  myServo.write(170);
+  delay(500);
+  int dist = readPing();
+  delay(100);
+  myServo.write(90);
+  return dist;
+}
+
+int readPing() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  int cm = duration * 0.034 / 2;
+  if (cm == 0) cm = 250;
+  return cm;
+}
+
+// Movement functions
+void moveStop() {
+  digitalWrite(RightMotorForward, LOW);
+  digitalWrite(LeftMotorForward, LOW);
+  digitalWrite(RightMotorBackward, LOW);
+  digitalWrite(LeftMotorBackward, LOW);
+}
+
+void moveForward() {
+  digitalWrite(LeftMotorForward, HIGH);
+  digitalWrite(RightMotorForward, HIGH);
+  digitalWrite(LeftMotorBackward, LOW);
+  digitalWrite(RightMotorBackward, LOW);
+}
+
+void moveBackward() {
+  digitalWrite(LeftMotorBackward, HIGH);
+  digitalWrite(RightMotorBackward, HIGH);
+  digitalWrite(LeftMotorForward, LOW);
+  digitalWrite(RightMotorForward, LOW);
+}
+
+void turnRight() {
+  digitalWrite(LeftMotorForward, HIGH);
+  digitalWrite(RightMotorBackward, HIGH);
+  delay(500); // Adjust for 90-degree turn
+}
+
+void turnLeft() {
+  digitalWrite(RightMotorForward, HIGH);
+  digitalWrite(LeftMotorBackward, HIGH);
+  delay(500); // Adjust for 90-degree turn
+}
